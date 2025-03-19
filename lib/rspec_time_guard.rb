@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'rspec_time_guard/version'
+require 'rspec_time_guard/railtie' if defined?(Rails)
+
 module RspecTimeGuard
   class TimeLimitExceededError < StandardError; end
 
