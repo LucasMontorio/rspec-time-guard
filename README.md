@@ -1,5 +1,6 @@
-[//]: # (TODO: Turn into a proper Work-in-progress README)
 [//]: # (TODO: Add a public TODO list?)
+
+# ⚠️ **_This project is a Work In Progress_** ⚠️
 
 # RspecTimeGuard
 
