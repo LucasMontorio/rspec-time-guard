@@ -4,12 +4,12 @@ require_relative "lib/rspec_time_guard/version"
 
 Gem::Specification.new do |spec|
   spec.name = "rspec-time-guard"
-  spec.version = Rspec::Time::Guard::VERSION
+  spec.version = RspecTimeGuard::VERSION
   spec.authors = ["Lucas Montorio"]
   spec.email = ["lucas.montorio@lifen.fr"]
 
   spec.summary = "A simple time keeper for RSpec tests."
-  # spec.description = "TODO: Write a longer description or delete this line."
+  spec.description = "RSpec Time Guard helps you identify and manage slow-running tests in your RSpec test suite by setting time limits on individual examples or globally across your test suite."
   spec.homepage = "https://github.com/LucasMontorio/rspec-time-guard"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
