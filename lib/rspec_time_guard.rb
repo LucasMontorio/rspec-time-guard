@@ -54,4 +54,3 @@ module RspecTimeGuard
   end
 end
 
-RspecTimeGuard.setup if defined?(RSpec)
