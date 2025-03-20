@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'rspec_time_guard/configuration'
 require 'rspec_time_guard/version'
 require 'rspec_time_guard/railtie' if defined?(Rails)
 
@@ -12,7 +13,7 @@ module RspecTimeGuard
     end
 
     def configuration
-      @_configuration ||= Configuration.new
+      @_configuration ||= RspecTimeGuard::Configuration.new
     end
 
     def setup
@@ -20,9 +21,9 @@ module RspecTimeGuard
 
       RSpec.configure do |config|
         config.around(:each) do |example|
-          time_limit_seconds = example.metadata[:time_limit_seconds] || RspecTimeGuard.configuration.max_execution_time
+          time_limit_seconds = example.metadata[:time_limit_seconds] || RspecTimeGuard.configuration.global_time_limit_seconds
 
-          next example.run unless example.metadata[:time_limit_seconds]
+          next example.run unless time_limit_seconds
 
           begin
             # NOTE: Creation of a new thread that runs in parallel with the main thread
@@ -36,9 +37,15 @@ module RspecTimeGuard
             #  - Waits for the thread to complete
             #  - Returns `true` if thread completed, `nil` if it timed out
             unless thread.join(time_limit_seconds)
-              thread.kill
-              raise RspecTimeGuard::TimeLimitExceededError,
-                    "[RspecTimeGuard] Example exceeded timeout of #{time_limit_seconds} seconds"
+              message = "[RspecTimeGuard] Example exceeded timeout of #{time_limit_seconds} seconds"
+
+              if RspecTimeGuard.configuration.continue_on_timeout
+                warn "#{message} - Running the example anyway (:continue_on_timeout option set to TRUE)"
+                example.run
+              else
+                thread.kill
+                raise RspecTimeGuard::TimeLimitExceededError, message
+              end
             end
           end
         end
