@@ -25,31 +25,48 @@ module RspecTimeGuard
 
           next example.run unless time_limit_seconds
 
-          begin
-            # NOTE: Creation of a new thread that runs in parallel with the main thread
-            #  - The block inside contains the actual test execution (`example.run`)
-            #  - Any exceptions in the thread are caught and stored in thread-local storage using `Thread.current[:exception]`
-            thread = Thread.new do
+          thread = Thread.new do
+            Thread.current.report_on_exception = false
+
+            begin
               example.run
+            rescue Exception => e
+              Thread.current[:exception] = e
             end
+          end
 
-            # NOTE: The following logic:
-            #  - Waits for the thread to complete
-            #  - Returns `true` if thread completed, `nil` if it timed out
-            unless thread.join(time_limit_seconds)
-              message = "[RspecTimeGuard] Example exceeded timeout of #{time_limit_seconds} seconds"
+          # NOTE: The following logic:
+          #  - Waits for the thread to complete
+          #  - Returns `true` if thread completed, `nil` if it timed out
 
-              if RspecTimeGuard.configuration.continue_on_timeout
-                warn "#{message} - Running the example anyway (:continue_on_timeout option set to TRUE)"
-                example.run
-              else
-                thread.kill
-                raise RspecTimeGuard::TimeLimitExceededError, message
-              end
+          if thread.join(time_limit_seconds)
+            raise thread[:exception] if thread[:exception]
+          else
+            message = "[RspecTimeGuard] Example exceeded timeout of #{time_limit_seconds} seconds"
+
+            if RspecTimeGuard.configuration.continue_on_timeout
+              warn "#{message} - Running the example anyway (:continue_on_timeout option set to TRUE)"
+              example.run
+            else
+              # thread.kill
+              RspecTimeGuard.terminate_thread(thread)
+              raise RspecTimeGuard::TimeLimitExceededError, message
             end
           end
         end
       end
+    end
+
+    def terminate_thread(thread)
+      return unless thread.alive?
+
+      # Attempt to terminate the thread gracefully
+      thread.exit
+
+      # Give the thread a moment to exit gracefully and perform cleanup
+      sleep 0.1
+      # If it's still alive, kill it
+      thread.kill if thread.alive?
     end
   end
 end
