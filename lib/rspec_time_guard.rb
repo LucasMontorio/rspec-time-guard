@@ -25,48 +25,39 @@ module RspecTimeGuard
 
           next example.run unless time_limit_seconds
 
-          thread = Thread.new do
+          completed = false
+
+          # NOTE: We instantiate a monitoring thread, to allow the example to run in the main RSpec thread.
+          # This is required to keep the RSpec context.
+          monitor_thread = Thread.new do
             Thread.current.report_on_exception = false
 
-            begin
-              example.run
-            rescue Exception => e
-              Thread.current[:exception] = e
+            # NOTE: The following logic:
+            #  - Waits for the duration of the time limit
+            #  - If the main thread is still running at that stage, raises a TimeLimitExceededError
+            sleep time_limit_seconds
+
+            unless completed
+              message = "[RspecTimeGuard] Example exceeded timeout of #{time_limit_seconds} seconds"
+              if RspecTimeGuard.configuration.continue_on_timeout
+                warn "#{message} - Running the example anyway (:continue_on_timeout option set to TRUE)"
+                example.run
+              else
+                Thread.main.raise RspecTimeGuard::TimeLimitExceededError, message
+              end
             end
           end
 
-          # NOTE: The following logic:
-          #  - Waits for the thread to complete
-          #  - Returns `true` if thread completed, `nil` if it timed out
-
-          if thread.join(time_limit_seconds)
-            raise thread[:exception] if thread[:exception]
-          else
-            message = "[RspecTimeGuard] Example exceeded timeout of #{time_limit_seconds} seconds"
-
-            if RspecTimeGuard.configuration.continue_on_timeout
-              warn "#{message} - Running the example anyway (:continue_on_timeout option set to TRUE)"
-              example.run
-            else
-              # thread.kill
-              RspecTimeGuard.terminate_thread(thread)
-              raise RspecTimeGuard::TimeLimitExceededError, message
-            end
+          # NOTE: Main RSpec thread execution
+          begin
+            example.run
+            completed = true
+          ensure
+            # NOTE: We explicitly clean up the monitoring thread in case the example completes before the time limit.
+            monitor_thread.kill if monitor_thread.alive?
           end
         end
       end
-    end
-
-    def terminate_thread(thread)
-      return unless thread.alive?
-
-      # Attempt to terminate the thread gracefully
-      thread.exit
-
-      # Give the thread a moment to exit gracefully and perform cleanup
-      sleep 0.1
-      # If it's still alive, kill it
-      thread.kill if thread.alive?
     end
   end
 end
