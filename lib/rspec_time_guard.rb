@@ -17,8 +17,6 @@ module RspecTimeGuard
     end
 
     def setup
-      Rails.logger.info "[RspecTimeGuard] Setting up RspecTimeGuard"
-
       RSpec.configure do |config|
         config.around(:each) do |example|
           time_limit_seconds = example.metadata[:time_limit_seconds] || RspecTimeGuard.configuration.global_time_limit_seconds
