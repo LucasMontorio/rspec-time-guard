@@ -112,6 +112,29 @@ When a test exceeds its time limit:
    - The test will continue running until completion
    - The test will pass or fail based on its assertions, not its timing
 
+### Important Notes on Test Execution
+
+#### Test Interruption
+
+When a time limit is exceeded and `continue_on_timeout` is set to `false` (the default):
+
+- Test execution is immediately interrupted at the time limit
+- Any code after the point where the timeout occurs will not be executed
+- Cleanup operations such as database transactions may not complete normally
+- Any assertions or expectations after the timeout point won't be evaluated
+
+This means if your test has important cleanup steps or assertions near the end, they might not run if the test times out earlier.
+If you need to ensure all test code runs even when timing out, use the `continue_on_timeout` option.
+
+#### Thread Safety Considerations
+
+RSpec Time Guard uses threads for execution monitoring. While we take care to properly clean up these threads, be aware that:
+
+1. Tests with threading or process-spawning code might behave unexpectedly
+2. Thread-local variables could be lost when a test is interrupted
+3. Some Ruby extensions and libraries might not be fully thread-safe
+ite
+
 
 ## Examples
 
