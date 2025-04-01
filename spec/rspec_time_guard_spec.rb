@@ -107,4 +107,23 @@ RSpec.describe RspecTimeGuard do
       end
     end
   end
+
+  describe 'thread cleanup' do
+    it 'cleans up all monitoring threads after execution' do
+      threads_before = Thread.list.map(&:object_id)
+
+      RSpec.describe 'SlowExample', :slow do
+        it 'runs a slow example' do
+          sleep 0.3
+        end
+      end.run
+
+      sleep 0.5
+
+      threads_after = Thread.list.map(&:object_id)
+      new_threads = threads_after - threads_before
+
+      expect(new_threads.size).to be 0
+    end
+  end
 end
