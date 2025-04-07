@@ -56,7 +56,7 @@ Create an initializer at `config/initializers/rspec_time_guard.rb` (for Rails) o
 RspecTimeGuard.configure do |config|
   # Set a global time limit in seconds for all examples (nil = no global limit)
   config.global_time_limit_seconds = 1.0
-  
+
   # Whether to continue running tests that exceed their time limit
   # true = shows warning but allows test to complete
   # false = raises TimeLimitExceededError and stops the test (default)
@@ -91,7 +91,7 @@ describe "operations that need more time", time_limit_seconds: 5 do
   it "does a complex operation" do
     # ...
   end
-  
+
   it "does another complex operation" do
     # ...
   end
@@ -149,7 +149,7 @@ RSpec.describe User, type: :model do
     user = User.new(email: "invalid")
     expect(user.valid?).to be false
   end
-  
+
   # This test will use the global time limit if configured
   it "can generate a profile" do
     user = User.create(name: "John", email: "john@example.com")
@@ -168,6 +168,8 @@ RSpec Time Guard works by:
 3. Monitoring execution time
 4. Taking action if the time limit is exceeded
 
+### Performance Considerations
+> ⚠️ **Note**: Setting a global time limit with `global_time_limit_seconds` creates a monitoring thread for each test in your suite. This may result in slightly reduced performance, especially in large test suites. For optimal performance, you might consider applying time limits only to specific tests that are prone to slowness rather than setting a global limit.
 
 ## Contributing
 
