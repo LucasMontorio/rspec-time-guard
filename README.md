@@ -4,29 +4,32 @@
 
 # RspecTimeGuard
 
-`RspecTimeGuard` helps you identify and manage slow-running tests in your RSpec test suite by setting time limits on individual examples or globally across your test suite.
+`RspecTimeGuard` monitors your tests as they run and provides safeguards against tests that take too long, helping you maintain a fast, reliable test suite.
+
+Why `RspecTimeGuard`?
+- **🔍 Catches slow tests** with customizable time limits and warnings
+- **🛑 Prevents runaway tests** from blocking your CI pipeline
+- **📊 Identifies bottlenecks** in your test suite to help you optimize
 
 
-## Installation
-
-Add this line to your application's Gemfile:
+## Quick Start
 
 ```ruby
+# Add to your Gemfile
 gem 'rspec-time-guard'
+
+# In spec_helper.rb or rails_helper.rb
+require 'rspec_time_guard'
 ```
 
-And then execute:
+Tag individual tests with specific time limits:
 
-```bash
-$ bundle install
+```ruby
+it "completes quickly", time_limit_seconds: 0.5 do
+  # This test will fail if it takes more than 0.5 seconds
+  expect(fast_operation).to be_truthy
+end
 ```
-
-Or install it globally:
-
-```bash
-$ gem install rspec-time-guard
-```
-
 
 ## Usage
 
