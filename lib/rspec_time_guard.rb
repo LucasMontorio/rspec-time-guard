@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'rspec_time_guard/configuration'
-require 'rspec_time_guard/version'
-require 'rspec_time_guard/railtie' if defined?(Rails)
+require "rspec_time_guard/configuration"
+require "rspec_time_guard/version"
+require "rspec_time_guard/railtie" if defined?(Rails)
 
 module RspecTimeGuard
   class TimeLimitExceededError < StandardError; end
@@ -39,7 +39,7 @@ module RspecTimeGuard
 
     def start_monitor_thread
       @monitor_thread = Thread.new do
-        Thread.current[:name] = 'rspec_time_guard_monitor'
+        Thread.current[:name] = "rspec_time_guard_monitor"
 
         loop do
           check_for_timeouts
@@ -70,7 +70,7 @@ module RspecTimeGuard
         elapsed = now - @active_tests[example.object_id][:start_time]
         thread = begin
           ObjectSpace._id2ref(@active_tests[example.object_id][:thread_id])
-        rescue StandardError
+        rescue
           nil
         end
 
