@@ -108,6 +108,12 @@ module RspecTimeGuard
       @_monitor ||= TimeoutMonitor.new
     end
 
+    # TODO: Write article (in 2 parts?)
+    # TODO: check warnings on test suite
+    # TODO: CHeck how it works with other Ruby interpreters? (check which implem was tested)
+    # TODO: Handle RSpec summary manually
+    #   -> Add a TimeGuard section
+    # TODO: Run profiling on the whole test suite to check for performance issues
     def setup
       RSpec.configure do |config|
         config.around(:each) do |example|
