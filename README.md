@@ -1,7 +1,3 @@
-[//]: # (TODO: Add a public TODO list?)
-
-# ⚠️ **_This project is a Work In Progress_** ⚠️
-
 # RspecTimeGuard
 
 `RspecTimeGuard` monitors your tests as they run and provides safeguards against tests that take too long, helping you maintain a fast, reliable test suite.
@@ -171,8 +167,11 @@ RSpec Time Guard works by:
 3. Monitoring execution time
 4. Taking action if the time limit is exceeded
 
-### Performance Considerations
-> ⚠️ **Note**: Setting a global time limit with `global_time_limit_seconds` creates a monitoring thread for each test in your suite. This may result in slightly reduced performance, especially in large test suites. For optimal performance, you might consider applying time limits only to specific tests that are prone to slowness rather than setting a global limit.
+## Performance and Feedback
+
+RSpec Time Guard is a relatively new gem, and while our initial benchmarks show promising results, we're still gathering comprehensive performance data across different environments and use cases. The gem's impact on your test suite may vary depending on factors like test suite size, Ruby interpreter, and CI environment.
+
+I'd love to hear about your experience using RSpec Time Guard.
 
 ## Contributing
 
