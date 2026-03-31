@@ -18,7 +18,7 @@ module RspecTimeGuard
       @mutex.synchronize do
         @active_tests[example.object_id] = {
           example: example,
-          start_time: Time.now,
+          start_time: Process.clock_gettime(Process::CLOCK_MONOTONIC),
           timeout: timeout,
           thread_id: thread.object_id,
           warned: false
@@ -52,7 +52,7 @@ module RspecTimeGuard
     end
 
     def check_for_timeouts
-      now = Time.now
+      now = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       timed_out_examples = []
 
       @mutex.synchronize do
