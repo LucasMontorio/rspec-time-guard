@@ -125,9 +125,6 @@ module RspecTimeGuard
 
           begin
             example.run
-          rescue RspecTimeGuard::TimeLimitExceededError => e
-            # NOTE: This changes the example's status to failed and records our error
-            example.exception = e
           ensure
             RspecTimeGuard.monitor.unregister_test(example)
           end
