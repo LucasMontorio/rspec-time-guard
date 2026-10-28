@@ -72,7 +72,7 @@ RSpec.describe RspecTimeGuard do
 
       allow(ObjectSpace).to receive(:_id2ref).and_return(test_thread)
       test_info = monitor.instance_variable_get(:@active_tests)[example.object_id]
-      test_info[:start_time] = Time.now - time_limit_seconds - 0.1 if test_info
+      test_info[:start_time] = Process.clock_gettime(Process::CLOCK_MONOTONIC) - time_limit_seconds - 0.1 if test_info
 
       # Run the test
       begin
@@ -84,7 +84,7 @@ RSpec.describe RspecTimeGuard do
         if continue_on_timeout
           # Ensure the test appears to have timed out (same backdating we did earlier)
           test_info = monitor.instance_variable_get(:@active_tests)[example.object_id]
-          test_info[:start_time] = Time.now - time_limit_seconds * 2 if test_info
+          test_info[:start_time] = Process.clock_gettime(Process::CLOCK_MONOTONIC) - time_limit_seconds * 2 if test_info
 
           # Now trigger the timeout check to generate the warning
           monitor.send(:check_for_timeouts)
@@ -214,7 +214,7 @@ RSpec.describe RspecTimeGuard do
         expect(test_info[:timeout]).to eq(0.5)
         expect(test_info[:thread_id]).to eq(thread.object_id)
         expect(test_info[:warned]).to eq(false)
-        expect(test_info[:start_time]).to be_a(Time)
+        expect(test_info[:start_time]).to be_a(Float)
       end
 
       it "starts a monitor thread if none is running" do
